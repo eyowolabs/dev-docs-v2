@@ -260,9 +260,6 @@
                     <a href="#http-request-4" class="toc-h2 toc-link" data-title="HTTP Request">HTTP Request</a>
                   </li>
                   <li>
-                    <a href="#request-body-4" class="toc-h2 toc-link" data-title="Request Body">Request Body</a>
-                  </li>
-                  <li>
                     <a href="#response-2" class="toc-h2 toc-link" data-title="Response">Response</a>
                   </li>
               </ul>
@@ -392,7 +389,7 @@ for this guide we will call it eyowo-js-test. Once that&#39;s done click submit.
 <p>There are two crucial credentials for every Eyowo app. They are:
 <ul>
   <li>App Key: This is a security credential for all API requests. It is used to identify your application.</li>
-  <li>App Secret: This credential is used for the generation of cryptographic cyphers to securely encrypt your API requests.</li>
+  <li>App Secret: This is your application secret key.</li>
 </ul></p>
 
 <p><img src="images/dashboard/app-credentials.jpeg" alt="Application credentials" /></p>
@@ -406,7 +403,7 @@ and must be treated as such</aside>
 <blockquote>
 <p>To authorize, use this code:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code><span class="c"># With shell, you can just pass the correct header with each request</span>
+<pre class="highlight shell tab-shell"><code><span class="c"># With shell, you pass the X-App-Key header with each request</span>
 curl <span class="s2">"api_endpoint_here"</span>
   -H <span class="s2">"X-App-Key: &lt;APP_KEY&gt;"</span>
 </code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">eyowo</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'eyowo-js'</span><span class="p">);</span>
@@ -419,63 +416,26 @@ curl <span class="s2">"api_endpoint_here"</span>
   <span class="nx">appSecret</span><span class="p">,</span>
   <span class="na">environment</span><span class="p">:</span> <span class="s1">'production'</span>
 <span class="p">});</span>
-</code></pre><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
 </code></pre>
-<blockquote>
-<p>The snippet below demonstrates the encryption of request payloads in a Node.js environment.</p>
-</blockquote>
-<pre class="highlight plaintext"><code>const CryptoJS = require('crypto-js');
-
-const message = { mobile: '2348000000000' };
-const iv = CryptoJS.lib.WordArray.random(16).toString();
-
-const authData = CryptoJS.AES.encrypt(
-  JSON.stringify(message), // See below for message schema
-  CryptoJS.enc.Base64.parse(APP_SECRET),
-  {
-    iv: CryptoJS.enc.Base64.parse(iv),
-  },
-).toString();
-</code></pre>
-<blockquote>
-<p>Upon encrypting your request data, send it to the API within an <code>authData</code> JSON object.</p>
-</blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"authData"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;ENCRYPTED_DATA&gt;"</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-<p>The Eyowo developer API utilizes your application secret and application key to authenticate API requests.
-These keys must be included in all requests.
+<p>The Eyowo developer API utilizes your application key to authenticate API requests.
 Your app key should be sent via an <code>X-App-Key</code> HTTP request header as shown below:</p>
 
 <p><code>X-App-Key: &lt;APP_KEY&gt;</code></p>
 
-<aside class="notice">
-You must replace <code>APP_SECRET</code> with your personal app secret.
-</aside>
-
-<p>In addition to your app secret there are two important headers to note when making direct HTTP calls.
-These are the <code>X-IV</code> and <code>X-App-Wallet-Key</code> headers.</p>
+<p>In addition to your app secret there is one important headers to note when making direct HTTP calls.
+This is the <code>X-App-Wallet-Access-Token</code> header.</p>
 
 <ul>
-  <li><b>X-IV</b>: This is a random 32-character string used to encrypt your requests to ensure secure data transmission.</li>
-  <li><b>X-App-Wallet-Key</b>: This is a token belonging to an Eyowo user which gives you access to the wallet of a user.
+  <li><b>X-App-Wallet-Access-Token</b>: This is a token belonging to an Eyowo user which gives you access to the wallet of a user.
   It is required for transaction types such as wallet to wallet transfers and wallet to bank transfers.</li>
 </ul>
 
-<p><br/>
-<strong>Encrypting Requests</strong></p>
-
-<p>All HTTP request payloads must be encrypted with your initialization vector (<code>X-IV</code>) and app secret AES encryption.
-Your app secret is used as the encryption secret - hence it must be treated as sensitive always.</p>
+<p><br/></p>
 <h2 id='validate-user'>Validate User</h2><pre class="highlight shell tab-shell"><code>curl --location --request POST <span class="s2">"https://api.console.eyowo.com/v1/users/auth/validate"</span> <span class="se">\</span>
   --header <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
   --header <span class="s2">"X-App-Key: 842e87acd5ef90caae15fb7bcdf882e9"</span> <span class="se">\</span>
-  --header <span class="s2">"X-IV: 62d7d6e0bffa5d475a56f97b423bf368"</span> <span class="se">\</span>
   --data <span class="s2">"{
-    </span><span class="se">\"</span><span class="s2">authData</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">/YjqH1Fmv4wd5vZxE8FQxGQvNaYhldTNlNGDkrbVPBE=</span><span class="se">\"</span><span class="s2">
+    </span><span class="se">\"</span><span class="s2">mobile</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">2348000000000</span><span class="se">\"</span><span class="s2">
 }"</span>
 </code></pre><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'net/http'</span>
 <span class="nb">require</span> <span class="s1">'json'</span>
@@ -486,9 +446,8 @@ Your app secret is used as the encryption secret - hence it must be treated as s
 
   <span class="n">req</span><span class="p">[</span><span class="s1">'Content-Type'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'application/json'</span>
   <span class="n">req</span><span class="p">[</span><span class="s1">'X-App-Key'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'842e87acd5ef90caae15fb7bcdf882e9'</span>
-  <span class="n">req</span><span class="p">[</span><span class="s1">'X-IV'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'62d7d6e0bffa5d475a56f97b423bf368'</span>
 
-  <span class="n">req</span><span class="p">.</span><span class="nf">body</span> <span class="o">=</span> <span class="p">{</span> <span class="ss">authData: </span><span class="s1">'/YjqH1Fmv4wd5vZxE8FQxGQvNaYhldTNlNGDkrbVPBE='</span> <span class="p">}.</span><span class="nf">to_json</span>
+  <span class="n">req</span><span class="p">.</span><span class="nf">body</span> <span class="o">=</span> <span class="p">{</span> <span class="ss">mobile: </span><span class="s1">'2348000000000'</span> <span class="p">}.</span><span class="nf">to_json</span>
   <span class="n">http</span><span class="p">.</span><span class="nf">request</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
 <span class="k">end</span>
 
@@ -571,12 +530,12 @@ Your app secret is used as the encryption secret - hence it must be treated as s
 <h2 id='user-authorization'>User Authorization</h2>
 <p>At times your application may required access to a user&#39;s wallet to perform transactions on behalf of a user.
 A user wallet token is required for this and it can be retrieved upon authorization from a user by login.</p>
-<h3 id='login-initiation-request'>Login Initiation Request</h3><pre class="highlight shell tab-shell"><code>curl --location --request POST <span class="s2">"https://api.console.eyowo.com/v1/users/auth"</span> <span class="se">\</span>
+<h3 id='user-authorization-initiation-request'>User Authorization Initiation Request</h3><pre class="highlight shell tab-shell"><code>curl --location --request POST <span class="s2">"https://api.console.eyowo.com/v1/users/auth"</span> <span class="se">\</span>
   --header <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
   --header <span class="s2">"X-App-Key: 842e87acd5ef90caae15fb7bcdf882e9"</span> <span class="se">\</span>
-  --header <span class="s2">"X-IV: 62d7d6e0bffa5d475a56f97b423bf368"</span> <span class="se">\</span>
   --data <span class="s2">"{
-    </span><span class="se">\"</span><span class="s2">authData</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">/YjqH1Fmv4wd5vZxE8FQxGQvNaYhldTNlNGDkrbVPBE=</span><span class="se">\"</span><span class="s2">
+    </span><span class="se">\"</span><span class="s2">mobile</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">2348184209188</span><span class="se">\"</span><span class="s2">,
+    </span><span class="se">\"</span><span class="s2">factor</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">sms</span><span class="se">\"</span><span class="s2">
 }"</span>
 </code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">eyowo</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'eyowo-js'</span><span class="p">);</span>
 
@@ -607,9 +566,11 @@ A user wallet token is required for this and it can be retrieved upon authorizat
 
   <span class="n">req</span><span class="p">[</span><span class="s1">'Content-Type'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'application/json'</span>
   <span class="n">req</span><span class="p">[</span><span class="s1">'X-App-Key'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'842e87acd5ef90caae15fb7bcdf882e9'</span>
-  <span class="n">req</span><span class="p">[</span><span class="s1">'X-IV'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'62d7d6e0bffa5d475a56f97b423bf368'</span>
 
-  <span class="n">req</span><span class="p">.</span><span class="nf">body</span> <span class="o">=</span> <span class="p">{</span> <span class="ss">authData: </span><span class="s1">'/YjqH1Fmv4wd5vZxE8FQxGQvNaYhldTNlNGDkrbVPBE='</span> <span class="p">}.</span><span class="nf">to_json</span>
+  <span class="n">req</span><span class="p">.</span><span class="nf">body</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="ss">mobile: </span><span class="s2">"2348000000000"</span><span class="p">,</span>
+      <span class="ss">factor: </span><span class="s2">"sms"</span>
+  <span class="p">}.</span><span class="nf">to_json</span>
   <span class="n">http</span><span class="p">.</span><span class="nf">request</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
 <span class="k">end</span>
 
@@ -652,7 +613,7 @@ login validation step.</p>
 <td>The login verification method to be used. The currently supported value for this attribute is<code>sms</code>.</td>
 </tr>
 </tbody></table>
-<h3 id='login-initiation-response'>Login Initiation Response</h3>
+<h3 id='user-authorization-initiation-response'>User Authorization Initiation Response</h3>
 <p>A successful request receives a response with an HTTP 200 status code. The table below describes the response parameters
 received from a successful login initiation request.</p>
 
@@ -674,7 +635,7 @@ received from a successful login initiation request.</p>
 <td>A success message.</td>
 </tr>
 </tbody></table>
-<h3 id='login-authorization-request'>Login Authorization Request</h3><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">eyowo</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'eyowo-js'</span><span class="p">);</span>
+<h3 id='user-authorization-request'>User Authorization Request</h3><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">eyowo</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'eyowo-js'</span><span class="p">);</span>
 
 <span class="kr">const</span> <span class="nx">appKey</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">APP_KEY</span><span class="p">;</span>
 <span class="kr">const</span> <span class="nx">appSecret</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">APP_SECRET</span><span class="p">;</span>
@@ -695,6 +656,14 @@ received from a successful login initiation request.</p>
 
   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span>
 <span class="p">})();</span>
+</code></pre><pre class="highlight shell tab-shell"><code>curl --location --request POST <span class="s2">"https://api.console.eyowo.com/v1/users/auth"</span> <span class="se">\</span>
+  --header <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  --header <span class="s2">"X-App-Key: 842e87acd5ef90caae15fb7bcdf882e9"</span> <span class="se">\</span>
+  --data <span class="s2">"{
+    </span><span class="se">\"</span><span class="s2">mobile</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">2348000000000</span><span class="se">\"</span><span class="s2">,
+    </span><span class="se">\"</span><span class="s2">factor</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">sms</span><span class="se">\"</span><span class="s2">,
+    </span><span class="se">\"</span><span class="s2">passcode</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">538245</span><span class="se">\"</span><span class="s2">
+}"</span>
 </code></pre>
 <blockquote>
 <p>Response</p>
@@ -743,7 +712,7 @@ attributes. Upon successful authorization the user will be logged in successfull
 <td>The passcode send to the verification medium of the user. Eyowo passcodes are numeric strings of length <code>6</code>.</td>
 </tr>
 </tbody></table>
-<h3 id='login-authorization-response'>Login Authorization Response</h3>
+<h3 id='user-authorization-response'>User Authorization Response</h3>
 <p>A successful request receives a response with an HTTP 200 status code. The table below describes the response parameters
 received from a successful login initiation request.</p>
 
@@ -773,11 +742,7 @@ received from a successful login initiation request.</p>
 <h1 id='balance'>Balance</h1><pre class="highlight shell tab-shell"><code>curl --location --request GET <span class="s2">"https://api.console.eyowo.com/v1/users/balance"</span> <span class="se">\</span>
   --header <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
   --header <span class="s2">"X-App-Key: 842e87acd5ef90caae15fb7bcdf882e9"</span> <span class="se">\</span>
-  --header <span class="s2">"X-IV: adb23a50962ad17ec259a350c5525ab1"</span> <span class="se">\</span>
   --header <span class="s2">"X-App-Wallet-Access-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVjNGVmZTQ2NWMwOTJmNWE1NGE1ZjVhNSIsIm1vYmlsZSI6IjIzNDkwOTU4MDE3NzIiLCJpYXQiOjE1NDg2ODA3NzQsImV4cCI6MTU0ODc2NzE3NH0.hUjwqiSfk1J6HaMwDkNsKkOJdTaEoT0wO54pFFDCyzA"</span> <span class="se">\</span>
-  --data <span class="s2">"{
-    </span><span class="se">\"</span><span class="s2">authData</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">/TnukdZXUH/AwUxQBwi+sQiAnoMJrDVAPoUwugKLYkKwkTXLQ0Yl5B6DwNFxslVd/HGDNxBCRveoDZNTK96RaQ==</span><span class="se">\"</span><span class="s2">
-}"</span>
 </code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">eyowo</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'eyowo-js'</span><span class="p">);</span>
 
 <span class="kr">const</span> <span class="nx">appKey</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">APP_KEY</span><span class="p">;</span>
@@ -815,23 +780,7 @@ received from a successful login initiation request.</p>
 </span></code></pre>
 <p>This resource is used to retrieve the wallet balance of an Eyowo user. Requests should be forwarded to the  <code>/v1/users/balance</code> endpoint.</p>
 <h3 id='http-request-4'>HTTP Request</h3>
-<p><code>POST https://api.console.eyowo.com/v1/users/balance</code></p>
-<h3 id='request-body-4'>Request Body</h3>
-<table><thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead><tbody>
-<tr>
-<td><code>mobile</code></td>
-<td>string</td>
-<td>true</td>
-<td>Phone number of user account to check.</td>
-</tr>
-</tbody></table>
+<p><code>GET https://api.console.eyowo.com/v1/users/balance</code></p>
 <h3 id='response-2'>Response</h3>
 <p>A successful request receives a response with an HTTP 200 status code with a response body containing a data object consisting <code>user</code> object.</p>
 
@@ -863,10 +812,10 @@ received from a successful login initiation request.</p>
 <h1 id='transfer'>Transfer</h1><h2 id='transfer-to-phone'>Transfer to Phone</h2><pre class="highlight shell tab-shell"><code>curl --location --request POST <span class="s2">"https://api.console.eyowo.com/v1/users/transfers/phone"</span> <span class="se">\</span>
   --header <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
   --header <span class="s2">"X-App-Key: 842e87acd5ef90caae15fb7bcdf882e9"</span> <span class="se">\</span>
-  --header <span class="s2">"X-IV: adb23a50962ad17ec259a350c5525ab1"</span> <span class="se">\</span>
   --header <span class="s2">"X-App-Wallet-Access-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVjNGVmZTQ2NWMwOTJmNWE1NGE1ZjVhNSIsIm1vYmlsZSI6IjIzNDkwOTU4MDE3NzIiLCJpYXQiOjE1NDg2ODA3NzQsImV4cCI6MTU0ODc2NzE3NH0.hUjwqiSfk1J6HaMwDkNsKkOJdTaEoT0wO54pFFDCyzA"</span> <span class="se">\</span>
   --data <span class="s2">"{
-    </span><span class="se">\"</span><span class="s2">authData</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">/TnukdZXUH/AwUxQBwi+sQiAnoMJrDVAPoUwugKLYkKwkTXLQ0Yl5B6DwNFxslVd/HGDNxBCRveoDZNTK96RaQ==</span><span class="se">\"</span><span class="s2">
+    </span><span class="se">\"</span><span class="s2">mobile</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">2348000000000</span><span class="se">\"</span><span class="s2">,
+    </span><span class="se">\"</span><span class="s2">amount</span><span class="se">\"</span><span class="s2">: 100000
 }"</span>
 </code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">eyowo</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'eyowo-js'</span><span class="p">);</span>
 
@@ -907,7 +856,7 @@ received from a successful login initiation request.</p>
 <p>This resource is used to transfer funds from a user wallet to a given phone number.</p>
 <h3 id='http-request-5'>HTTP Request</h3>
 <p><code>POST https://api.console.eyowo.com/v1/users/transfers/phone</code></p>
-<h3 id='request-body-5'>Request Body</h3>
+<h3 id='request-body-4'>Request Body</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -936,10 +885,12 @@ All amounts are in Kobo.
 <h2 id='transfer-to-bank'>Transfer to Bank</h2><pre class="highlight shell tab-shell"><code>curl --location --request POST <span class="s2">"https://api.console.eyowo.com/v1/users/transfers/bank"</span> <span class="se">\</span>
   --header <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
   --header <span class="s2">"X-App-Key: 842e87acd5ef90caae15fb7bcdf882e9"</span> <span class="se">\</span>
-  --header <span class="s2">"X-IV: adb23a50962ad17ec259a350c5525ab1"</span> <span class="se">\</span>
   --header <span class="s2">"X-App-Wallet-Access-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVjNGVmZTQ2NWMwOTJmNWE1NGE1ZjVhNSIsIm1vYmlsZSI6IjIzNDkwOTU4MDE3NzIiLCJpYXQiOjE1NDg2ODA3NzQsImV4cCI6MTU0ODc2NzE3NH0.hUjwqiSfk1J6HaMwDkNsKkOJdTaEoT0wO54pFFDCyzA"</span> <span class="se">\</span>
   --data <span class="s2">"{
-    </span><span class="se">\"</span><span class="s2">authData</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">/TnukdZXUH/AwUxQBwi+sQiAnoMJrDVAPoUwugKLYkKwkTXLQ0Yl5B6DwNFxslVd/HGDNxBCRveoDZNTK96RaQ==</span><span class="se">\"</span><span class="s2">
+    </span><span class="se">\"</span><span class="s2">accountName</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">SEGUN AHMED OKOROMA</span><span class="se">\"</span><span class="s2">,
+    </span><span class="se">\"</span><span class="s2">accountNumber</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">2079151995</span><span class="se">\"</span><span class="s2">,
+    </span><span class="se">\"</span><span class="s2">bankCode</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">000004</span><span class="se">\"</span><span class="s2">,
+    </span><span class="se">\"</span><span class="s2">amount</span><span class="se">\"</span><span class="s2">: 100000
 }"</span>
 </code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">eyowo</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'eyowo-js'</span><span class="p">);</span>
 
@@ -982,7 +933,7 @@ All amounts are in Kobo.
 <p>This resource is used to transfer money from a user wallet to a given bank account.</p>
 <h3 id='http-request-6'>HTTP Request</h3>
 <p><code>POST https://api.console.eyowo.com/v1/users/transfers/bank</code></p>
-<h3 id='request-body-6'>Request Body</h3>
+<h3 id='request-body-5'>Request Body</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -1050,13 +1001,15 @@ All amounts are in Kobo.
   --header <span class="s2">"X-IV: adb23a50962ad17ec259a350c5525ab1"</span> <span class="se">\</span>
   --header <span class="s2">"X-App-Wallet-Access-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVjNGVmZTQ2NWMwOTJmNWE1NGE1ZjVhNSIsIm1vYmlsZSI6IjIzNDkwOTU4MDE3NzIiLCJpYXQiOjE1NDg2ODA3NzQsImV4cCI6MTU0ODc2NzE3NH0.hUjwqiSfk1J6HaMwDkNsKkOJdTaEoT0wO54pFFDCyzA"</span> <span class="se">\</span>
   --data <span class="s2">"{
-    </span><span class="se">\"</span><span class="s2">authData</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">/TnukdZXUH/AwUxQBwi+sQiAnoMJrDVAPoUwugKLYkKwkTXLQ0Yl5B6DwNFxslVd/HGDNxBCRveoDZNTK96RaQ==</span><span class="se">\"</span><span class="s2">
+    </span><span class="se">\"</span><span class="s2">mobile</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">2348000000000</span><span class="se">\"</span><span class="s2">,
+    </span><span class="se">\"</span><span class="s2">amount</span><span class="se">\"</span><span class="s2">: 10000,
+    </span><span class="se">\"</span><span class="s2">provider</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">etisalat</span><span class="se">\"</span><span class="s2">
 }"</span>
 </code></pre>
 <p>This resource is used to make virtual top ups.</p>
 <h3 id='http-request-7'>HTTP Request</h3>
 <p><code>POST https://api.console.eyowo.com/v1/users/payments/bills/vtu</code></p>
-<h3 id='request-body-7'>Request Body</h3>
+<h3 id='request-body-6'>Request Body</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -1081,7 +1034,7 @@ All amounts are in Kobo.
 <td><code>provider</code></td>
 <td>string</td>
 <td>true</td>
-<td>Billing provider to make virtual top up.</td>
+<td>Billing provider to make virtual top up. (etisalat, glo, airtel, mtn)</td>
 </tr>
 </tbody></table>
 <h3 id='response-4'>Response</h3>
