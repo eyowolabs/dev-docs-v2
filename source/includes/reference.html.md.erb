@@ -3,7 +3,7 @@
 > To authorize, use this code:
 
 ```shell
-# With shell, you can just pass the correct header with each request
+# With shell, you pass the X-App-Key header with each request
 curl "api_endpoint_here"
   -H "X-App-Key: <APP_KEY>"
 ```
@@ -21,61 +21,20 @@ const client = new eyowo.Client({
 });
 ```
 
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-```
-
-> The snippet below demonstrates the encryption of request payloads in a Node.js environment.
-
-```text
-const CryptoJS = require('crypto-js');
-
-const message = { mobile: '2348000000000' };
-const iv = CryptoJS.lib.WordArray.random(16).toString();
-
-const authData = CryptoJS.AES.encrypt(
-  JSON.stringify(message), // See below for message schema
-  CryptoJS.enc.Base64.parse(APP_SECRET),
-  {
-    iv: CryptoJS.enc.Base64.parse(iv),
-  },
-).toString();
-```
-
-> Upon encrypting your request data, send it to the API within an `authData` JSON object.
-
-```json
-{
-  "authData": "<ENCRYPTED_DATA>"
-}
-```
-
-The Eyowo developer API utilizes your application secret and application key to authenticate API requests.
-These keys must be included in all requests.
+The Eyowo developer API utilizes your application key to authenticate API requests.
 Your app key should be sent via an `X-App-Key` HTTP request header as shown below:
 
 `X-App-Key: <APP_KEY>`
 
-<aside class="notice">
-You must replace <code>APP_SECRET</code> with your personal app secret.
-</aside>
-
-In addition to your app secret there are two important headers to note when making direct HTTP calls.
-These are the `X-IV` and `X-App-Wallet-Key` headers.
+In addition to your app secret there is one important headers to note when making direct HTTP calls.
+This is the `X-App-Wallet-Access-Token` header.
 
 <ul>
-  <li><b>X-IV</b>: This is a random 32-character string used to encrypt your requests to ensure secure data transmission.</li>
-  <li><b>X-App-Wallet-Key</b>: This is a token belonging to an Eyowo user which gives you access to the wallet of a user.
+  <li><b>X-App-Wallet-Access-Token</b>: This is a token belonging to an Eyowo user which gives you access to the wallet of a user.
   It is required for transaction types such as wallet to wallet transfers and wallet to bank transfers.</li>
 </ul>
 
 <br/>
-**Encrypting Requests**
-
-All HTTP request payloads must be encrypted with your initialization vector (`X-IV`) and app secret AES encryption.
-Your app secret is used as the encryption secret - hence it must be treated as sensitive always.
 
 ## Validate User
 
@@ -83,9 +42,8 @@ Your app secret is used as the encryption secret - hence it must be treated as s
 curl --location --request POST "https://api.console.eyowo.com/v1/users/auth/validate" \
   --header "Content-Type: application/json" \
   --header "X-App-Key: 842e87acd5ef90caae15fb7bcdf882e9" \
-  --header "X-IV: 62d7d6e0bffa5d475a56f97b423bf368" \
   --data "{
-	\"authData\": \"/YjqH1Fmv4wd5vZxE8FQxGQvNaYhldTNlNGDkrbVPBE=\"
+	\"mobile\": \"2348000000000\"
 }"
 ```
 
@@ -99,9 +57,8 @@ res = Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
 
   req['Content-Type'] = 'application/json'
   req['X-App-Key'] = '842e87acd5ef90caae15fb7bcdf882e9'
-  req['X-IV'] = '62d7d6e0bffa5d475a56f97b423bf368'
 
-  req.body = { authData: '/YjqH1Fmv4wd5vZxE8FQxGQvNaYhldTNlNGDkrbVPBE=' }.to_json
+  req.body = { mobile: '2348000000000' }.to_json
   http.request(req)
 end
 
@@ -169,14 +126,14 @@ Parameter | Type | Description
 At times your application may required access to a user's wallet to perform transactions on behalf of a user.
 A user wallet token is required for this and it can be retrieved upon authorization from a user by login.
 
-### Login Initiation Request
+### User Authorization Initiation Request
 ```shell
 curl --location --request POST "https://api.console.eyowo.com/v1/users/auth" \
   --header "Content-Type: application/json" \
   --header "X-App-Key: 842e87acd5ef90caae15fb7bcdf882e9" \
-  --header "X-IV: 62d7d6e0bffa5d475a56f97b423bf368" \
   --data "{
-	\"authData\": \"/YjqH1Fmv4wd5vZxE8FQxGQvNaYhldTNlNGDkrbVPBE=\"
+	\"mobile\": \"2348184209188\",
+	\"factor\": \"sms\"
 }"
 ```
 
@@ -213,9 +170,11 @@ res = Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
 
   req['Content-Type'] = 'application/json'
   req['X-App-Key'] = '842e87acd5ef90caae15fb7bcdf882e9'
-  req['X-IV'] = '62d7d6e0bffa5d475a56f97b423bf368'
 
-  req.body = { authData: '/YjqH1Fmv4wd5vZxE8FQxGQvNaYhldTNlNGDkrbVPBE=' }.to_json
+  req.body = {
+	  mobile: "2348000000000",
+	  factor: "sms"
+  }.to_json
   http.request(req)
 end
 
@@ -247,7 +206,7 @@ Parameter | Type | Required | Description
 `mobile` | string | true | Any string representation of a valid Nigerian mobile number.
 `factor` | string | true | The login verification method to be used. The currently supported value for this attribute is`sms`.
 
-### Login Initiation Response
+### User Authorization Initiation Response
 A successful request receives a response with an HTTP 200 status code. The table below describes the response parameters
 received from a successful login initiation request.
 
@@ -256,7 +215,7 @@ Parameter | Type | Description
 `success` | boolean | The unique identifier of the Eyowo user.
 `message` | string | A success message.
 
-### Login Authorization Request
+### User Authorization Request
 ```javascript
 const eyowo = require('eyowo-js');
 
@@ -279,6 +238,17 @@ const client = new eyowo.Client({
 
   console.log(response)
 })();
+```
+
+```shell
+curl --location --request POST "https://api.console.eyowo.com/v1/users/auth" \
+  --header "Content-Type: application/json" \
+  --header "X-App-Key: 842e87acd5ef90caae15fb7bcdf882e9" \
+  --data "{
+	\"mobile\": \"2348000000000\",
+	\"factor\": \"sms\",
+	\"passcode\": \"538245\"
+}"
 ```
 
 > Response
@@ -311,7 +281,7 @@ Parameter | Type | Required | Description
 `factor` | string | true | The login verification method to be used. The currently supported value for this attribute is`sms`.
 `passcode` | string | false | The passcode send to the verification medium of the user. Eyowo passcodes are numeric strings of length `6`.
 
-### Login Authorization Response
+### User Authorization Response
 A successful request receives a response with an HTTP 200 status code. The table below describes the response parameters
 received from a successful login initiation request.
 
@@ -327,11 +297,7 @@ Parameter | Type | Description
 curl --location --request GET "https://api.console.eyowo.com/v1/users/balance" \
   --header "Content-Type: application/json" \
   --header "X-App-Key: 842e87acd5ef90caae15fb7bcdf882e9" \
-  --header "X-IV: adb23a50962ad17ec259a350c5525ab1" \
   --header "X-App-Wallet-Access-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVjNGVmZTQ2NWMwOTJmNWE1NGE1ZjVhNSIsIm1vYmlsZSI6IjIzNDkwOTU4MDE3NzIiLCJpYXQiOjE1NDg2ODA3NzQsImV4cCI6MTU0ODc2NzE3NH0.hUjwqiSfk1J6HaMwDkNsKkOJdTaEoT0wO54pFFDCyzA" \
-  --data "{
-	\"authData\": \"/TnukdZXUH/AwUxQBwi+sQiAnoMJrDVAPoUwugKLYkKwkTXLQ0Yl5B6DwNFxslVd/HGDNxBCRveoDZNTK96RaQ==\"
-}"
 ```
 
 ```javascript
@@ -376,12 +342,7 @@ This resource is used to retrieve the wallet balance of an Eyowo user. Requests 
 
 ### HTTP Request
 
-`POST https://api.console.eyowo.com/v1/users/balance`
-
-### Request Body
-Parameter | Type | Required | Description
---------- | ------- | ------ | -----------
-`mobile` | string | true | Phone number of user account to check.
+`GET https://api.console.eyowo.com/v1/users/balance`
 
 ### Response
 A successful request receives a response with an HTTP 200 status code with a response body containing a data object consisting `user` object.
@@ -402,10 +363,10 @@ Parameter | Type | Description
 curl --location --request POST "https://api.console.eyowo.com/v1/users/transfers/phone" \
   --header "Content-Type: application/json" \
   --header "X-App-Key: 842e87acd5ef90caae15fb7bcdf882e9" \
-  --header "X-IV: adb23a50962ad17ec259a350c5525ab1" \
   --header "X-App-Wallet-Access-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVjNGVmZTQ2NWMwOTJmNWE1NGE1ZjVhNSIsIm1vYmlsZSI6IjIzNDkwOTU4MDE3NzIiLCJpYXQiOjE1NDg2ODA3NzQsImV4cCI6MTU0ODc2NzE3NH0.hUjwqiSfk1J6HaMwDkNsKkOJdTaEoT0wO54pFFDCyzA" \
   --data "{
-	\"authData\": \"/TnukdZXUH/AwUxQBwi+sQiAnoMJrDVAPoUwugKLYkKwkTXLQ0Yl5B6DwNFxslVd/HGDNxBCRveoDZNTK96RaQ==\"
+	\"mobile\": \"2348000000000\",
+	\"amount\": 100000
 }"
 ```
 
@@ -471,10 +432,12 @@ All amounts are in Kobo.
 curl --location --request POST "https://api.console.eyowo.com/v1/users/transfers/bank" \
   --header "Content-Type: application/json" \
   --header "X-App-Key: 842e87acd5ef90caae15fb7bcdf882e9" \
-  --header "X-IV: adb23a50962ad17ec259a350c5525ab1" \
   --header "X-App-Wallet-Access-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVjNGVmZTQ2NWMwOTJmNWE1NGE1ZjVhNSIsIm1vYmlsZSI6IjIzNDkwOTU4MDE3NzIiLCJpYXQiOjE1NDg2ODA3NzQsImV4cCI6MTU0ODc2NzE3NH0.hUjwqiSfk1J6HaMwDkNsKkOJdTaEoT0wO54pFFDCyzA" \
   --data "{
-	\"authData\": \"/TnukdZXUH/AwUxQBwi+sQiAnoMJrDVAPoUwugKLYkKwkTXLQ0Yl5B6DwNFxslVd/HGDNxBCRveoDZNTK96RaQ==\"
+	\"accountName\": \"SEGUN AHMED OKOROMA\",
+	\"accountNumber\": \"2079151995\",
+	\"bankCode\": \"000004\",
+	\"amount\": 100000
 }"
 ```
 
@@ -555,7 +518,9 @@ curl --location --request POST "https://api.console.eyowo.com/v1/users/payments/
   --header "X-IV: adb23a50962ad17ec259a350c5525ab1" \
   --header "X-App-Wallet-Access-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVjNGVmZTQ2NWMwOTJmNWE1NGE1ZjVhNSIsIm1vYmlsZSI6IjIzNDkwOTU4MDE3NzIiLCJpYXQiOjE1NDg2ODA3NzQsImV4cCI6MTU0ODc2NzE3NH0.hUjwqiSfk1J6HaMwDkNsKkOJdTaEoT0wO54pFFDCyzA" \
   --data "{
-	\"authData\": \"/TnukdZXUH/AwUxQBwi+sQiAnoMJrDVAPoUwugKLYkKwkTXLQ0Yl5B6DwNFxslVd/HGDNxBCRveoDZNTK96RaQ==\"
+	\"mobile\": \"2348000000000\",
+	\"amount\": 10000,
+	\"provider\": \"etisalat\"
 }"
 ```
 This resource is used to make virtual top ups.
@@ -570,7 +535,7 @@ Parameter | Type | Required | Description
 --------- | ------- | ------ | -----------
 `mobile` | string | true | Any string representation of a valid Nigerian mobile number.
 `amount` | long | true | Amount in Kobo.
-`provider` | string | true | Billing provider to make virtual top up.
+`provider` | string | true | Billing provider to make virtual top up. (etisalat, glo, airtel, mtn)
 
 ### Response
 A successful request receives a response with an HTTP 200 status code with a response body containing a data object consisting `user` object.
