@@ -251,16 +251,19 @@
                   <li>
                     <a href="#user-authorization" class="toc-h2 toc-link" data-title="User Authorization">User Authorization</a>
                   </li>
+                  <li>
+                    <a href="#wallet-access-token-refresh" class="toc-h2 toc-link" data-title="Wallet Access Token Refresh">Wallet Access Token Refresh</a>
+                  </li>
               </ul>
           </li>
           <li>
             <a href="#balance" class="toc-h1 toc-link" data-title="Balance">Balance</a>
               <ul class="toc-list-h2">
                   <li>
-                    <a href="#http-request-4" class="toc-h2 toc-link" data-title="HTTP Request">HTTP Request</a>
+                    <a href="#http-request-5" class="toc-h2 toc-link" data-title="HTTP Request">HTTP Request</a>
                   </li>
                   <li>
-                    <a href="#response-2" class="toc-h2 toc-link" data-title="Response">Response</a>
+                    <a href="#response-3" class="toc-h2 toc-link" data-title="Response">Response</a>
                   </li>
               </ul>
           </li>
@@ -739,6 +742,70 @@ received from a successful login initiation request.</p>
 <td>A JSON object containing an <code>accessToken</code>, <code>refreshToken</code> and <code>expiresIn</code> attribute - which defining the time in seconds to token expiry.</td>
 </tr>
 </tbody></table>
+
+<aside class="notice">
+`accessToken` is the user wallet access token. This is passed in the `X-App-Wallet-Access-Token` header.
+</aside>
+<h2 id='wallet-access-token-refresh'>Wallet Access Token Refresh</h2><pre class="highlight shell tab-shell"><code>curl --location --request POST <span class="s2">"https://api.console.eyowo.com/v1/users/accessToken"</span> <span class="se">\</span>
+  --header <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  --header <span class="s2">"X-App-Key: 842e87acd5ef90caae15fb7bcdf882e9"</span> <span class="se">\</span>
+  --data <span class="s2">"{
+    </span><span class="se">\"</span><span class="s2">refreshToken</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">5d1a8b13f9be2b7a62e0d1031dc48a6cbe1ae0ce</span><span class="se">\"</span><span class="s2">
+}"</span>
+</code></pre>
+<blockquote>
+<p>Response</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"success"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"accessToken"</span><span class="p">:</span><span class="w"> </span><span class="s2">"kyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZDI6IjVkMWE4YjEzZjliZTJiNmE2MmUwZDEwMyIsIm1vYmlsZSI6IjIzNDgxODQyMDkxODgiLCJpYXQiOjE1NjI1MzMwNDEsImV4cCI6MTU2MjYxOTQ0MX0.qyZqwrmIIMLloPGbL9q-3O64nQwYNg5DtzDE7B776dQ"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"expiresIn"</span><span class="p">:</span><span class="w"> </span><span class="mi">86400</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>This resource is used to refresh a wallet access token upon expiry.</p>
+<h3 id='http-request-4'>HTTP Request</h3>
+<p><code>POST https://api.console.eyowo.com/v1/users/accessToken</code></p>
+<h3 id='request-body-4'>Request Body.</h3>
+<p>The request body of the validate user request consists of a single attribute.</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>refreshToken</code></td>
+<td>string</td>
+<td>true</td>
+<td>Wallet refresh token.</td>
+</tr>
+</tbody></table>
+<h3 id='response-2'>Response</h3>
+<p>A successful request receives a response with an HTTP 200 status code with a response body containing a data object consisting of the following.</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>accessToken</code></td>
+<td>string</td>
+<td>New wallet access token.</td>
+</tr>
+<tr>
+<td><code>expiresIn</code></td>
+<td>string</td>
+<td>Token expiry.</td>
+</tr>
+</tbody></table>
 <h1 id='balance'>Balance</h1><pre class="highlight shell tab-shell"><code>curl --location --request GET <span class="s2">"https://api.console.eyowo.com/v1/users/balance"</span> <span class="se">\</span>
   --header <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
   --header <span class="s2">"X-App-Key: 842e87acd5ef90caae15fb7bcdf882e9"</span> <span class="se">\</span>
@@ -779,9 +846,9 @@ received from a successful login initiation request.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 <p>This resource is used to retrieve the wallet balance of an Eyowo user. Requests should be forwarded to the  <code>/v1/users/balance</code> endpoint.</p>
-<h3 id='http-request-4'>HTTP Request</h3>
+<h3 id='http-request-5'>HTTP Request</h3>
 <p><code>GET https://api.console.eyowo.com/v1/users/balance</code></p>
-<h3 id='response-2'>Response</h3>
+<h3 id='response-3'>Response</h3>
 <p>A successful request receives a response with an HTTP 200 status code with a response body containing a data object consisting <code>user</code> object.</p>
 
 <p>The <code>user</code> object contains the following attributes:</p>
@@ -854,9 +921,9 @@ received from a successful login initiation request.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 <p>This resource is used to transfer funds from a user wallet to a given phone number.</p>
-<h3 id='http-request-5'>HTTP Request</h3>
+<h3 id='http-request-6'>HTTP Request</h3>
 <p><code>POST https://api.console.eyowo.com/v1/users/transfers/phone</code></p>
-<h3 id='request-body-4'>Request Body</h3>
+<h3 id='request-body-5'>Request Body</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -931,9 +998,9 @@ All amounts are in Kobo.
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 <p>This resource is used to transfer money from a user wallet to a given bank account.</p>
-<h3 id='http-request-6'>HTTP Request</h3>
+<h3 id='http-request-7'>HTTP Request</h3>
 <p><code>POST https://api.console.eyowo.com/v1/users/transfers/bank</code></p>
-<h3 id='request-body-5'>Request Body</h3>
+<h3 id='request-body-6'>Request Body</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -967,7 +1034,7 @@ All amounts are in Kobo.
 <td>Unique code of bank.</td>
 </tr>
 </tbody></table>
-<h3 id='response-3'>Response</h3>
+<h3 id='response-4'>Response</h3>
 <p>A successful request receives a response with an HTTP 200 status code with a response body containing a data object consisting <code>user</code> object.</p>
 
 <p>The <code>user</code> object contains the following attributes:</p>
@@ -1007,9 +1074,9 @@ All amounts are in Kobo.
 }"</span>
 </code></pre>
 <p>This resource is used to make virtual top ups.</p>
-<h3 id='http-request-7'>HTTP Request</h3>
+<h3 id='http-request-8'>HTTP Request</h3>
 <p><code>POST https://api.console.eyowo.com/v1/users/payments/bills/vtu</code></p>
-<h3 id='request-body-6'>Request Body</h3>
+<h3 id='request-body-7'>Request Body</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -1037,7 +1104,7 @@ All amounts are in Kobo.
 <td>Billing provider to make virtual top up. (etisalat, glo, airtel, mtn)</td>
 </tr>
 </tbody></table>
-<h3 id='response-4'>Response</h3>
+<h3 id='response-5'>Response</h3>
 <p>A successful request receives a response with an HTTP 200 status code with a response body containing a data object consisting <code>user</code> object.</p>
 
 <p>The <code>user</code> object contains the following attributes:</p>
