@@ -291,6 +291,55 @@ Parameter | Type | Description
 `message` | string | A success message.
 `data` | object | A JSON object containing an `accessToken`, `refreshToken` and `expiresIn` attribute - which defining the time in seconds to token expiry.
 
+<aside class="notice">
+`accessToken` is the user wallet access token. This is passed in the `X-App-Wallet-Access-Token` header.
+</aside>
+
+## Wallet Access Token Refresh
+
+```shell
+curl --location --request POST "https://api.console.eyowo.com/v1/users/accessToken" \
+  --header "Content-Type: application/json" \
+  --header "X-App-Key: 842e87acd5ef90caae15fb7bcdf882e9" \
+  --data "{
+	\"refreshToken\": \"5d1a8b13f9be2b7a62e0d1031dc48a6cbe1ae0ce\"
+}"
+```
+
+> Response
+
+```json
+{
+    "success": true,
+    "data": {
+        "accessToken": "kyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZDI6IjVkMWE4YjEzZjliZTJiNmE2MmUwZDEwMyIsIm1vYmlsZSI6IjIzNDgxODQyMDkxODgiLCJpYXQiOjE1NjI1MzMwNDEsImV4cCI6MTU2MjYxOTQ0MX0.qyZqwrmIIMLloPGbL9q-3O64nQwYNg5DtzDE7B776dQ",
+        "expiresIn": 86400
+    }
+}
+```
+
+This resource is used to refresh a wallet access token upon expiry.
+
+### HTTP Request
+
+`POST https://api.console.eyowo.com/v1/users/accessToken`
+
+### Request Body.
+The request body of the validate user request consists of a single attribute.
+
+Parameter | Type | Required | Description
+--------- | ------- | ------ | -----------
+`refreshToken` | string | true | Wallet refresh token.
+
+### Response
+A successful request receives a response with an HTTP 200 status code with a response body containing a data object consisting of the following.
+
+
+Parameter | Type | Description
+--------- | ------- | -----------
+`accessToken` | string | New wallet access token.
+`expiresIn` | string | Token expiry.
+
 # Balance
 
 ```shell
