@@ -1,0 +1,489 @@
+# Eyowo Web Checkout
+
+```shell
+echo "Welcome to the Eyowo Checkout Developer API reference!
+      As you read through this guide,
+      sample snippets will appear on this panel
+      to help you get up to speed.
+
+      Kindly visit https://dashboard.merchant.eyowo.com to create
+      an account for your Business."
+```
+
+```javascript
+const message = `
+      Welcome to the Eyowo Checkout Developer API reference!\n
+      As you read through this guide,\n
+      sample snippets will appear on this panel\n
+      to help you get up to speed.\n
+
+      Kindly visit https://dashboard.merchant.eyowo.com to create
+      an account for your Business.`;
+
+console.info(message);
+```
+
+```ruby
+message = "
+      Welcome to the Eyowo Checkout Developer API reference!\n
+      As you read through this guide,\n
+      sample snippets will appear on this panel\n
+      to help you get up to speed.\n
+
+      Kindly visit https://dashboard.merchant.eyowo.com to create
+      an account for your Business."
+
+puts message
+```
+
+```kotlin
+fun main() {
+  val message = buildString {
+    it.append("Welcome to the Eyowo Checkout Developer API reference!\n")
+    it.append("As you read through this guide,\n")
+    it.append("sample snippets will appear on this panel\n")
+    it.append("to help you get up to speed.\n\n")
+    it.append("Kindly visit https://dashboard.merchant.eyowo.com to create
+    an account for your Business.")
+  }
+  println(message)
+}
+```
+
+```java
+class Welcome {
+  public static void main(String[] args) {
+    StringBuilder builder = new StringBuilder();
+
+    builder.append("Welcome to the Eyowo Checkout Developer API reference!\n")
+    builder.append("As you read through this guide,\n")
+    builder.append("sample snippets will appear on this panel\n")
+    builder.append("to help you get up to speed.\n\n")
+    builder.append("Kindly visit https://dashboard.merchant.eyowo.com to create
+    an account for your Business.")
+
+    System.out.print(builder.toString());
+  }
+}
+```
+
+The Eyowo Checkout Developer API is a <a href="https://en.wikipedia.org/wiki/Representational_state_transfer" target="_blank">RESTful</a>
+web service that provides developers with a powerful set of resources that can be utilized to integrate with the Eyowo Payment Gateway.
+
+The API makes use of standard HTTP request methods and response codes. This API supports both form-encoded
+and standard JSON requests. All responses rendered by the API are in JSON format.
+
+You can access all the endpoints here on the 
+<a href="https://documenter.getpostman.com/view/6831336/SVmvSyPa?version=latest" target="_blank">Eyowo Checkout Developer API Postman collection</a>
+
+Feel free to make use of the sandbox to test integrations with the provided endpoints.
+It is a secure space created specifically for you to familiarize yourself with our services.
+
+We are constantly working on new features to help you build more feature rich applications.
+As such we constantly update this documentation with new resources. Follow us
+<a href="https://twitter.com/eyowo" target="_blank">@eyowo</a>
+to stay up to date on new API releases.
+
+## Starting
+The first step to integrating your application with the Eyowo Checkout API is the creation of a Business account.
+Navigate to the <a href="https://dashboard.merchant.eyowo.com" target="_blank">Eyowo Retail website</a> from a browser of your choice to
+register an account. A valid email address and password is required for registration.
+Upon registration you will be redirected to the create a business.
+
+<%= image_tag '/images/webcheckout/sign-up.png', alt: 'Register on Eyowo Retail' %>
+
+Your dashboard provides you with tools that will help you:
+<ul>
+  <li>Create and manage multiple businesses on Eyowo Retail.</li>
+  <li>Manage and View reports on branches, POS terminals, inventory and transactions</li>
+  <li>Manage admin roles and permissions.</li>
+</ul>
+
+## Creating a Business
+Having successfully registered and accessed the dashboard, lets go ahead and create a new business. Enter
+**Business Name** and **Business Email** input then upload a **Business Logo** to represent your business.
+You may also create branches for your business. Once thats done click next. You should now see your 
+business on the dashboard.
+
+<%= image_tag '/images/webcheckout/create-business.png', alt: 'Create a Business' %>
+
+<%= image_tag '/images/webcheckout/create-branch.png', alt: 'Create a Branch' %>
+
+
+Click on **Click here** to connect an Eyowo wallet to this business. This is the wallet account that 
+receives all settlement payments from POS Terminal and Eyowo payments. It is also the wallet that 
+would be debited for subscription charges accrued while using this service.
+
+<%= image_tag '/images/webcheckout/eyowo.png', alt: 'Connect eyowo wallet' %>
+
+<%= image_tag '/images/webcheckout/confirm-eyowo.png', alt: 'Confirm eyowo wallet using OTP' %>
+
+
+## API Keys
+There is one crucial credential for every Eyowo Business. It is:
+<ul>
+  <li>API Key: This is a security credential for all API requests. It is used to identify your Business.</li>
+</ul>
+ 
+This credential is sent to the email used to create a business on the merchant dashboard
+
+<aside class="warning">Never expose your API Key credentials to a third party. These are highly sensitive secrets
+and must be treated as such</aside>
+
+## Callback URL
+<ul>
+    <li>You may set up a callback URL if you want to receive transaction updates real time:</li>
+</ul>
+
+This information is used to send transaction updates when they are approved to the callback URL provided.
+
+## Authentication
+
+> To authorize, use this code:
+
+```shell
+# With shell, you pass the Bearer Token Authorization header with each request
+curl "api_endpoint_here"
+  -H Authorization: Bearer ${API_KEY}"
+```
+
+```javascript
+var http = require('http');
+
+var options = {
+  'method': 'http_method_here',
+  'hostname': "api_endpoint_here",
+  'path': "api_path_here",
+  'headers': {
+    'Content-Type': 'application/json',
+    'Authorization' : 'Bearer ${API_KEY}'
+  }
+};
+```
+
+The Eyowo Checkout Developer API utilizes your Business API key to authenticate API requests.
+Your API key should be sent via an authorization header when making API requests.
+
+## Create A Bill
+
+```shell
+curl --location --request POST "http://api.checkout.merchant.staging.eyowo.com/v1/bills" \
+  --header "Content-Type: application/json" \
+  --data "{
+	\"amount\" : 10000
+}"
+```
+
+```ruby
+require "uri"
+require "net/http"
+
+url = URI("http://api.checkout.merchant.staging.eyowo.com/v1/bills")
+
+http = Net::HTTP.new(url.host, url.port)
+
+request = Net::HTTP::Post.new(url)
+request["Content-Type"] = "application/json"
+request.body = "{\n\t\"amount\" : 10000\n}"
+
+response = http.request(request)
+puts response.read_body
+```
+
+```javascript
+var http = require('http');
+
+var options = {
+  'method': 'POST',
+  'hostname': 'api.checkout.merchant.staging.eyowo.com',
+  'path': '/v1/bills',
+  'headers': {
+    'Content-Type': 'application/json'
+  }
+};
+
+var req = http.request(options, function (res) {
+  var chunks = [];
+
+  res.on("data", function (chunk) {
+    chunks.push(chunk);
+  });
+
+  res.on("end", function (chunk) {
+    var body = Buffer.concat(chunks);
+    console.log(body.toString());
+  });
+
+  res.on("error", function (error) {
+    console.error(error);
+  });
+});
+
+var postData =  "{\n\t\"amount\" : 10000\n}";
+
+req.write(postData);
+
+req.end();
+```
+> Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "bill": {
+      "_id": "5d8110de4dccab482bdc1234",
+      "senderName": "SPAR",
+      "products": [],
+      "amount": 10000,
+      "status": "pending",
+      "code": "15",
+      "ussd": "*4255*00*15#",
+      "billingMethod": "eyowo",
+      "createdAt": "2019-09-17T16:59:10.406Z",
+      "reference": "779AE17A",
+      "taxes": [],
+      "discounts": []
+    }
+  },
+  "message": "Bill created successfully "
+}
+```
+
+This endpoint creates a bill that can be accessed on the Eyowo Merchant Dashboard. 
+### HTTP Request
+
+`POST http://api.checkout.merchant.staging.eyowo.com/v1/bills`
+
+### Request Body.
+The request body of the validate user request consists of a single attribute.
+
+Parameter | Type | Required | Description
+--------- | ------- | ------ | -----------
+ `amount` | number  | true   | Any number representing the amount of the bill in kobo.
+
+<aside class="warning"> amount must be greater than 100 kobo or 1 naira, and it must be entered as kobo equivalent</aside>
+
+### Response
+A successful request receives a response with an HTTP 200 status code with a response body containing a data object consisting of the details of the new bill created.
+
+The `data` object contains a `bill` object with the following attributes:
+
+Parameter | Type | Description
+--------- | ------- | -----------
+`_id` | string | The unique identifier of the new bill.
+`amount` | number | The total amount to be paid for this bill .
+`status` | string | The payment status of the bill: It can be any of : 'pending', 'approved' or 'rejected' .
+`paymentMethod` | string | The method used to pay for this bill. It can be any of: 'eyowo_web_qr', 'eyowo_web_ussd' or 'eyowo_web_card' .
+
+## Send Payment Request
+
+The payment request should be sent in form of a query string in the format below:
+
+### Request Format
+
+"http://checkout-staging.eyowo.com/?id={BILLID}&
+email={VISITOR-EMAIL}&redirect_url={REDIRECT_URL}" 
+
+Parameter | Type | Required | Description
+--------- | ------- | ------ | -----------
+ `id` | string  | true   | The unique identifier of the new bill.
+ `email` | string  | true   | The email of the visitor wanting to pay on your website.
+ `redirect_url` | string  | true   | The URL to redirect to after the bill payment is complete.
+
+
+## Verify Payment Status
+```shell
+curl --location --request GET "https://api.checkout.merchant.staging.eyowo.com/v1/bills/{:billID}/verify"
+```
+
+```javascript
+var https = require('https');
+
+var options = {
+  'method': 'GET',
+  'hostname': 'api.checkout.merchant.staging.eyowo.com',
+  'path': '/v1/bills/{:billID}/verify',
+  'headers': {
+
+  }
+};
+
+var req = https.request(options, function (res) {
+  var chunks = [];
+
+  res.on("data", function (chunk) {
+    chunks.push(chunk);
+  });
+
+  res.on("end", function (chunk) {
+    var body = Buffer.concat(chunks);
+    console.log(body.toString());
+  });
+
+  res.on("error", function (error) {
+    console.error(error);
+  });
+});
+
+req.end();
+```
+
+```ruby
+require "uri"
+require "net/http"
+
+url = URI("https://api.checkout.merchant.staging.eyowo.com/v1/bills/{:billID}/verify")
+
+https = Net::HTTP.new(url.host, url.port)
+https.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+
+response = https.request(request)
+puts response.read_body
+```
+
+> Response Example 1
+
+```json
+{
+  "success": true,
+  "data": {
+    "billResp": {
+      "status": "pending",
+      "_id": "5d8110de4dccab482bdc1234",
+      "amount": 10000
+    }
+  }
+}
+```
+
+> Response Example 2
+
+```json
+{
+  "success": true,
+  "data": {
+    "billResp": {
+      "status": "approved",
+      "_id": "5d8110de4dccab482bdc1234",
+      "amount": 10000,
+      "paymentMethod": "eyowo_web_qr"
+    }
+  }
+}
+```
+
+### HTTP Request
+
+`GET https://api.checkout.merchant.staging.eyowo.com/v1/bills/{:billID}/verify`
+
+### Request Body
+
+Parameter | Type | Required | Description
+--------- | ------- | ------ | -----------
+ `billID` | string  | true   | The unique identifier of the bill.
+
+
+### Response
+A successful request receives a response with an HTTP 200 status code with a response body containing a data object consisting of the details of the bill.
+
+The `data` object contains a `billResp` object with the following attributes:
+
+Parameter | Type | Description
+--------- | ------- | -----------
+`_id` | string | The unique identifier of the new bill.
+`amount` | number | The total amount to be paid for this bill .
+`paymentMethod` | string | The method used to pay for this bill. It can be any of: 'eyowo_web_qr', 'eyowo_web_ussd' or 'eyowo_web_card' .
+`createdAt` | date | The date and time the bill was created.
+`reference` | string | The bill refernce printed on the receipt for easy tracking.
+`taxes` | array | The taxes charged to this bill .
+`discount` | array | The discounts applied to this bill.
+
+## Send Payment Receipt
+
+```shell
+curl --location --request POST "https://api.checkout.merchant.staging.eyowo.com/v1/bills/{:billID}/receipt" \
+  --header "Content-Type: application/json" \
+  --data "{
+	\"email\" : \"visitor@email.com\"
+}"
+```
+
+```ruby
+require "uri"
+require "net/http"
+
+url = URI("https://api.checkout.merchant.staging.eyowo.com/v1/bills/{:billID}/receipt")
+
+https = Net::HTTP.new(url.host, url.port)
+https.use_ssl = true
+
+request = Net::HTTP::Post.new(url)
+request["Content-Type"] = "application/json"
+request.body = "{\n\t\"email\" : \"visitor@email.com\"\n}"
+
+response = https.request(request)
+puts response.read_body
+```
+
+```javascript
+var https = require('https');
+
+var options = {
+  'method': 'POST',
+  'hostname': 'api.checkout.merchant.staging.eyowo.com',
+  'path': '/v1/bills/5d824275632cd533d987dc8a/receipt',
+  'headers': {
+    'Content-Type': 'application/json'
+  }
+};
+
+var req = https.request(options, function (res) {
+  var chunks = [];
+
+  res.on("data", function (chunk) {
+    chunks.push(chunk);
+  });
+
+  res.on("end", function (chunk) {
+    var body = Buffer.concat(chunks);
+    console.log(body.toString());
+  });
+
+  res.on("error", function (error) {
+    console.error(error);
+  });
+});
+
+var postData =  "{\n\t\"email\" : \"visitor@email.com\"\n}";
+
+req.write(postData);
+
+req.end();
+```
+> Response
+
+```json
+{
+  "success": true,
+  "message": "Receipt sent to customer successfully"
+}
+```
+
+This endpoint sends an email receipt for an approved bill. 
+### HTTP Request
+
+`POST https://api.checkout.merchant.staging.eyowo.com/v1/bills/{:billID}/receipt`
+
+### Request Body
+The request body of the validate user request consists of a single attribute.
+
+Parameter | Type | Required | Description
+--------- | ------- | ------ | -----------
+ `billID` | string  | true   | The unique identifier of the bill.
+
+
+### Response
+A successful request receives a response with an HTTP 200 status code with a response body containing a message string.
